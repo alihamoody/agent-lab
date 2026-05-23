@@ -1,0 +1,44 @@
+{
+  "name": "ts-agent-lab",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "w0:groq": "npx tsx src/week-00-raw-api/groq-raw.ts",
+    "w0:ollama": "npx tsx src/week-00-raw-api/ollama-raw.ts",
+    "w1": "npx tsx src/week-01-tool-loop/agent.ts",
+    "w2": "npx tsx src/week-02-research/agent.ts",
+    "w3:agent": "npx tsx src/week-03-graph/agent.ts",
+    "w3:server": "npx tsx src/week-03-graph/server.ts",
+    "w3:multi": "npx tsx src/week-03-stretch-multi-agent/agent.ts",
+    "w4:server": "npx tsx src/week-04-capstone/server/index.ts",
+    "w4:ui": "vite --config src/week-04-capstone/vite.config.ts",
+    "w4:next": "cd src/week-04-stretch-next && next dev -p 3002",
+    "w4:next:build": "cd src/week-04-stretch-next && next build"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.0",
+    "@ai-sdk/groq": "^3.0.0",
+    "@ai-sdk/react": "^3.0.0",
+    "@ai-sdk/openai-compatible": "^0.2.0",
+    "@hono/node-server": "^1.14.0",
+    "@langchain/core": "^1.1.0",
+    "@langchain/groq": "^0.2.0",
+    "@langchain/langgraph": "^1.2.0",
+    "ai": "^6.0.0",
+    "dotenv": "^16.4.0",
+    "hono": "^4.7.0",
+    "next": "^15.3.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vite": "^5.4.0"
+  }
+}
