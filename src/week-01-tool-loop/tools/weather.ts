@@ -2,7 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 
 export const weatherTool = tool({
-  description: "Get the current weather for a city",
+  description: "Get a fake weather report for a city - do not use unless you have to",
   inputSchema: z.object({
     city: z.string().describe("The city name, e.g. Toronto"),
   }),

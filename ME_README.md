@@ -150,15 +150,12 @@ CLI agent: ask it a question → it decides whether to call
 
 ### Key things to learn this week
 - **Zod tool schemas** — `inputSchema` on each `tool()`
-- **`stopWhen: stepCountIs(n)`** — cap the loop (prevents runaway tool calls)
-- **`steps` array** — log `toolCalls` / `toolResults` after `generateText` returns
+- **`stopWhen: stepCountIs(n)`** — controls the loop on both `generateText` and `ToolLoopAgent`. Default on `generateText` is `stepCountIs(1)` (single step); default on `ToolLoopAgent` is `stepCountIs(20)`
+- **`steps` array** — log `toolCalls` / `toolResults` from the result
 - **The model picks the tool** — you don't route it; the LLM reads descriptions and decides
 
 ### Stretch goal (after it works)
-Refactor `agent.ts` to use `ToolLoopAgent` instead of `generateText`.
-Compare them. The behaviour is identical — `ToolLoopAgent` is just a
-named class wrapping the same loop. Seeing both makes frameworks
-less mysterious.
+Refactor `agent.ts` to `ToolLoopAgent`. Both use `stopWhen` but the defaults differ — `generateText` defaults to `stepCountIs(1)`, `ToolLoopAgent` defaults to `stepCountIs(20)`. `ToolLoopAgent` is a reusable class you instantiate once and call `.generate()` or `.stream()` on repeatedly.
 
 ### Provider swap reminder
 If Groq rate-limits you mid-session, swap two lines and keep going:
@@ -299,7 +296,7 @@ This lab uses **Vite + React + separate Hono server** on purpose. You already kn
 | **Two clear boxes** — UI vs API; easy to understand SSE and agents | Two processes in dev (`w4:server` + `w4:ui`) |
 | **Minimal magic** — you see fetch, stream parsing, proxy | No built-in API routes; you wire Hono yourself |
 | **Fast Vite HMR** — instant UI feedback | Production = deploy two artifacts (or merge later) |
-| **Matches weeks 1–3** — same `generateText` in a plain Node server | Less “batteries included” than Next |
+| **Matches weeks 1–3** — same `generateText` in a plain Node server | Less "batteries included" than Next |
 | **Great for learning** the agent loop before framework routing | Not the default pattern on many job postings |
 
 **Best when:** You want to *see* streaming and tool events without Next.js routing abstractions.
@@ -309,20 +306,20 @@ This lab uses **Vite + React + separate Hono server** on purpose. You already kn
 | Pros | Cons |
 |------|------|
 | **One app** — `app/api/chat/route.ts` + `app/page.tsx` | Steeper curve: RSC, caching, file-based routing |
-| **`useChat` + AI SDK** docs often assume Next | Easy to fight the framework if you don’t need SSR |
+| **`useChat` + AI SDK** docs often assume Next | Easy to fight the framework if you don't need SSR |
 | **Single deploy** on Vercel — strong portfolio signal | Dev cold start / bundling heavier than Vite-only |
-| **Familiar at work** if your team uses Next | Free tier still needs Groq/Gemini keys — Next doesn’t replace LLM cost |
+| **Familiar at work** if your team uses Next | Free tier still needs Groq/Gemini keys — Next doesn't replace LLM cost |
 | **SSR/SEO** if you add marketing pages around the demo | Overkill for a local CLI-heavy learning lab |
 
-**Best when:** You want one deployed URL, your day job is Next, or you’re showcasing “full-stack TS on Vercel.”
+**Best when:** You want one deployed URL, your day job is Next, or you're showcasing "full-stack TS on Vercel."
 
 ### Practical recommendation
 
-1. **Finish week 4 Vite + Hono** — learn SSE and manual stream parsing.  
-2. **Then week 4 Next stretch** — `src/week-04-stretch-next/` (`npm run w4:next`), same agent via Route Handler + `useChat`.  
+1. **Finish week 4 Vite + Hono** — learn SSE and manual stream parsing.
+2. **Then week 4 Next stretch** — `src/week-04-stretch-next/` (`npm run w4:next`), same agent via Route Handler + `useChat`.
 3. **Do not start the lab on Next** — do weeks 0–3 first.
 
-**Rule of thumb:** Vite = teach the loop. Next = teach the deploy and SDK integration pattern you’ll see at work.
+**Rule of thumb:** Vite = teach the loop. Next = teach the deploy and SDK integration pattern you'll see at work.
 
 ### Week 4 stretch — Next.js (built for you)
 
@@ -358,6 +355,7 @@ Optional deploy: `npm run w4:next:build` → Vercel with project root `src/week-
 | Resource | URL |
 |----------|-----|
 | AI SDK 6 — Agents | https://ai-sdk.dev/docs/agents/building-agents |
+| AI SDK 6 — ToolLoopAgent | https://ai-sdk.dev/docs/reference/ai-sdk-core/tool-loop-agent |
 | AI SDK 6 — Tools | https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling |
 | LangGraph JS docs | https://langchain-ai.github.io/langgraphjs/ |
 | LangGraph JS intro tutorial | https://langchain-ai.github.io/langgraphjs/tutorials/introduction/ |

@@ -3,12 +3,13 @@
  * Run: npm run w1
  */
 import "dotenv/config";
-import { generateText, stepCountIs } from "ai";
+import { generateText, stepCountIs, ToolLoopAgent } from "ai";
 import { createGroq } from "@ai-sdk/groq";
 import { withRetry } from "../lib/with-retry.js";
 import { weatherTool } from "./tools/weather.js";
 import { calculatorTool } from "./tools/calculator.js";
-
+import { terminalTool } from "./tools/terminal.js";
+import { fetchTool } from "./tools/fetch.js";
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
 const query =
@@ -17,16 +18,29 @@ const query =
 
 console.log(`\n🔍 Query: ${query}\n${"─".repeat(60)}`);
 
-const { text, steps } = await withRetry(() =>
-  generateText({
-    model: groq("llama-3.3-70b-versatile"),
-    tools: { weather: weatherTool, calculator: calculatorTool },
-    stopWhen: stepCountIs(5),
-    system:
-      "You are a helpful assistant. Use tools when needed. Explain briefly before calling a tool.",
-    prompt: query,
-  })
-);
+
+// using generateText
+// const { text, steps } = await 
+//   generateText({
+//     model: groq("llama-3.3-70b-versatile"),
+//     tools: { weather: weatherTool, calculator: calculatorTool },
+//     stopWhen: stepCountIs(5),
+//     system:
+//       "You are a helpful assistant. Use tools when needed. Explain briefly before calling a tool.",
+//     prompt: query,
+//   })
+
+// using ToolLoopAgent
+const agent = new ToolLoopAgent({
+  model: groq("llama-3.3-70b-versatile"),
+  // model: groq("llama-3.1-8b-instant"),
+  tools: { weather: weatherTool, calculator: calculatorTool , shell: terminalTool, fetch: fetchTool},
+  stopWhen: stepCountIs(5),
+  instructions: `You are a helpful assistant. Use tools when needed with accurate schma and syntax. Explain briefly before calling a tool.`,
+});
+const { text, steps } = await agent.generate({
+  prompt: query,
+}); 
 
 for (const step of steps) {
   for (const tc of step.toolCalls ?? []) {
