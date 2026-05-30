@@ -18,19 +18,27 @@ const model = wrapLanguageModel({
 
 const query =
   process.argv.slice(2).join(" ") ||
-  "What are the most popular open-source LLM agent frameworks right now?";
+  "What is LangGraph.js used for in 2026? and is Vercel AI SDK better latest version v6?";
 
 console.log(`\n🔍 Query: ${query}\n${"─".repeat(60)}`);
+
+const system = `You are a research assistant.
+For factual or current questions, call the search tool before answering.
+Wait for tool results, then answer in prose.
+End with a "Sources:" section listing URLs you used.`;
+const tools = { search: searchTool, calculator: calculatorTool };
 
 const { text, steps } = await withRetry(() =>
   generateText({
     model,
-    tools: { search: searchTool, calculator: calculatorTool },
+    tools,
     stopWhen: stepCountIs(8),
-    system: `You are a research assistant. ALWAYS search before answering factual questions.
-Search 2-3 times with different queries if needed.
-End every answer with a "Sources:" section listing URLs you used.`,
+    system,
     prompt: query,
+    prepareStep: ({ stepNumber }) =>
+      stepNumber === 0
+        ? { toolChoice: { type: "tool", toolName: "search" } }
+        : { toolChoice: "auto" },
   })
 );
 
