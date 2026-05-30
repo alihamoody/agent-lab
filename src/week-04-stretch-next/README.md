@@ -21,6 +21,8 @@ npm run w4:next
 
 Open http://localhost:3002
 
+Like Week 1, the route handler wraps its Groq model with AI SDK DevTools middleware. Run `npm run devtools` and open `http://localhost:4983` while using the Next chat UI to inspect prompts, model responses, tool calls, timing, and token usage.
+
 **Port 3002** avoids clashing with week 3 (`:3000`), Vite server (`:3001`), and Vite UI (`:5173`).
 
 ## What to compare

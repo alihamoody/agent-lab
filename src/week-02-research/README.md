@@ -8,3 +8,5 @@ npm run w2 "What is LangGraph.js used for in 2026?"
 ```
 
 Reuses `calculator` from `src/week-01-tool-loop/tools/`. Run from repo root.
+
+Like Week 1, this agent wraps its Groq model with AI SDK DevTools middleware. Run `npm run devtools` and open `http://localhost:4983` to inspect prompts, model responses, tool calls, timing, and token usage.

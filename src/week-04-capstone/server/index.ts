@@ -7,13 +7,18 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { streamSSE } from "hono/streaming";
 import { cors } from "hono/cors";
-import { generateText, stepCountIs } from "ai";
+import { generateText, stepCountIs, wrapLanguageModel } from "ai";
 import { createGroq } from "@ai-sdk/groq";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { withRetry } from "../../lib/with-retry.js";
 import { searchTool } from "../../week-02-research/tools/search.js";
 import { calculatorTool } from "../../week-01-tool-loop/tools/calculator.js";
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const model = wrapLanguageModel({
+  model: groq("llama-3.3-70b-versatile"),
+  middleware: devToolsMiddleware(),
+});
 const server = new Hono();
 
 server.use("*", cors());
@@ -27,7 +32,7 @@ server.post("/chat", (c) =>
 
     const { text, steps } = await withRetry(() =>
       generateText({
-        model: groq("llama-3.3-70b-versatile"),
+        model,
         tools: { search: searchTool, calculator: calculatorTool },
         stopWhen: stepCountIs(8),
         system:

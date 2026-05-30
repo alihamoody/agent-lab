@@ -6,12 +6,18 @@ import {
   streamText,
   stepCountIs,
   convertToModelMessages,
+  wrapLanguageModel,
   type UIMessage,
 } from "ai";
 import { createGroq } from "@ai-sdk/groq";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { searchTool, calculatorTool } from "../../../../lib/agent-tools";
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const model = wrapLanguageModel({
+  model: groq("llama-3.3-70b-versatile"),
+  middleware: devToolsMiddleware(),
+});
 
 export const maxDuration = 60;
 
@@ -26,7 +32,7 @@ export async function POST(req: Request) {
   const { messages } = (await req.json()) as { messages: UIMessage[] };
 
   const result = streamText({
-    model: groq("llama-3.3-70b-versatile"),
+    model,
     messages: await convertToModelMessages(messages),
     tools: { search: searchTool, calculator: calculatorTool },
     stopWhen: stepCountIs(8),
