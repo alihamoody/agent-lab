@@ -1,4 +1,5 @@
 .env
+.devtools/
 node_modules/
 dist/
 .next/

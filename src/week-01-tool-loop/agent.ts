@@ -3,14 +3,19 @@
  * Run: npm run w1
  */
 import "dotenv/config";
-import { generateText, stepCountIs, ToolLoopAgent } from "ai";
+import { stepCountIs, ToolLoopAgent, wrapLanguageModel } from "ai";
 import { createGroq } from "@ai-sdk/groq";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { withRetry } from "../lib/with-retry.js";
 import { weatherTool } from "./tools/weather.js";
 import { calculatorTool } from "./tools/calculator.js";
 import { terminalTool } from "./tools/terminal.js";
 import { fetchTool } from "./tools/fetch.js";
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const model = wrapLanguageModel({
+  model: groq("llama-3.3-70b-versatile"),
+  middleware: devToolsMiddleware(),
+});
 
 const query =
   process.argv.slice(2).join(" ") ||
@@ -22,7 +27,7 @@ console.log(`\n🔍 Query: ${query}\n${"─".repeat(60)}`);
 // using generateText
 // const { text, steps } = await 
 //   generateText({
-//     model: groq("llama-3.3-70b-versatile"),
+//     model,
 //     tools: { weather: weatherTool, calculator: calculatorTool },
 //     stopWhen: stepCountIs(5),
 //     system:
@@ -32,15 +37,26 @@ console.log(`\n🔍 Query: ${query}\n${"─".repeat(60)}`);
 
 // using ToolLoopAgent
 const agent = new ToolLoopAgent({
-  model: groq("llama-3.3-70b-versatile"),
+  model,
   // model: groq("llama-3.1-8b-instant"),
-  tools: { weather: weatherTool, calculator: calculatorTool , shell: terminalTool, fetch: fetchTool},
+  tools: {
+    weather: weatherTool,
+    calculator: calculatorTool,
+    shell: terminalTool,
+    fetch: fetchTool,
+  },
   stopWhen: stepCountIs(5),
-  instructions: `You are a helpful assistant. Use tools when needed with accurate schma and syntax. Explain briefly before calling a tool.`,
+  instructions:
+    "You are a helpful assistant. Use tools when needed with accurate schema and syntax. Explain briefly before calling a tool.",
+  // onStepFinish: (step) => {
+  //   console.log(`[step]: ${JSON.stringify(step, null, 2)}`);
+  // },
 });
-const { text, steps } = await agent.generate({
-  prompt: query,
-}); 
+const { text, steps } = await withRetry(() =>
+  agent.generate({
+    prompt: query,
+  })
+);
 
 for (const step of steps) {
   for (const tc of step.toolCalls ?? []) {

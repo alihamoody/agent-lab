@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "devtools": "devtools",
     "w0:groq": "npx tsx src/week-00-raw-api/groq-raw.ts",
     "w0:ollama": "npx tsx src/week-00-raw-api/ollama-raw.ts",
     "w1": "npx tsx src/week-01-tool-loop/agent.ts",
@@ -16,10 +17,11 @@
     "w4:next:build": "cd src/week-04-stretch-next && next build"
   },
   "dependencies": {
+    "@ai-sdk/devtools": "^0.0.18",
     "@ai-sdk/google": "^3.0.0",
     "@ai-sdk/groq": "^3.0.0",
-    "@ai-sdk/react": "^3.0.0",
     "@ai-sdk/openai-compatible": "^0.2.0",
+    "@ai-sdk/react": "^3.0.0",
     "@hono/node-server": "^1.14.0",
     "@langchain/core": "^1.1.0",
     "@langchain/groq": "^0.2.0",
